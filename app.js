@@ -20,7 +20,7 @@ app.get('/cctv_cam_data', (req, res) => {
             console.log('Parsed CSV row:', data);
             
             // Use vidCounter as key but include cam_id inside the object
-            results[vidCounter++] = {
+            results[data.cam_id] = {
                 id: data.cam_id,  // This will ensure the ID appears
                 ip: data.ip,
                 type: data.type,
