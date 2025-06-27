@@ -14,21 +14,24 @@ app.get('/cctv_cam_data', (req, res) => {
     console.log('Attempting to read CSV from:', csvFilePath);
     
     fs.createReadStream(csvFilePath)
-        .pipe(csv())
+        .pipe(csv({
+            // Define the headers for your CSV
+            headers: ['cam_id', 'ip', 'type', 'lat', 'long', 'status'],
+            skipLines: 1 // Set to 1 if your CSV already has a header row
+        }))
         .on('data', (data) => {
             // Log each row to see what's being parsed
             console.log('Parsed CSV row:', data);
             
-            // Use vidCounter as key but include cam_id inside the object
             results[vidCounter++] = {
-                cam_id: data.cam_id,  // This will ensure the ID appears
-                ip: data.ip,
-                type: data.type,
+                cam_id: data.cam_id || 'unknown',
+                ip: data.ip || '',
+                type: data.type || '',
                 location: {
-                    lat: parseFloat(data.lat),
-                    long: parseFloat(data.long)
+                    lat: parseFloat(data.lat || 0),
+                    long: parseFloat(data.long || 0)
                 },
-                status: data.status
+                status: data.status || 'unknown'
             };
             
             // Log the object that was just added
