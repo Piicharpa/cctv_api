@@ -23,8 +23,8 @@ app.get('/cctv_cam_data', (req, res) => {
                 location: {
                     lat: parseFloat(data.lat),
                     long: parseFloat(data.long)
-                },
-                status: data.status
+                }
+                
             };
         })
         .on('end', () => {
