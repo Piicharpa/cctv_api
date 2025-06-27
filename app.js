@@ -6,15 +6,19 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.get('/cctv_cam_data', (req, res) => {
-    const results = {};  // Change to object instead of array
-    let vidCounter = 1;  // Keep the counter for keys
+    const results = {};
+    let vidCounter = 1;
     
     // Use path.join to correctly reference the file
     const csvFilePath = path.join(__dirname, 'cctv_cam_data.csv');
+    console.log('Attempting to read CSV from:', csvFilePath);
     
     fs.createReadStream(csvFilePath)
         .pipe(csv())
         .on('data', (data) => {
+            // Log each row to see what's being parsed
+            console.log('Parsed CSV row:', data);
+            
             // Use vidCounter as key but include cam_id inside the object
             results[vidCounter++] = {
                 id: data.cam_id,  // This will ensure the ID appears
@@ -23,15 +27,20 @@ app.get('/cctv_cam_data', (req, res) => {
                 location: {
                     lat: parseFloat(data.lat),
                     long: parseFloat(data.long)
-                }
-                
+                },
+                status: data.status
             };
+            
+            // Log the object that was just added
+            console.log('Added to results:', results[vidCounter-1]);
         })
         .on('end', () => {
             if (Object.keys(results).length === 0) {
+                console.log('No results found');
                 return res.status(404).json({ message: "No data found." });
             }
-            res.json(results);  // Return the object directly
+            console.log('Final results:', results);
+            res.json(results);
         })
         .on('error', (error) => {
             console.error('Error reading the CSV file:', error);
